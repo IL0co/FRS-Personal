@@ -1,0 +1,23 @@
+"Phrases"
+{
+//	Цвета  {DEFAULT} {RED} {LIGHTPURPLE} {GREEN} {LIME} {LIGHTGREEN} {LIGHTRED} 
+//			{GRAY} {LIGHTOLIVE} {OLIVE} {LIGHTBLUE} {BLUE} {PURPLE} {GRAYBLUE}
+
+	"Disable Rank"
+	{
+		"ru"		"Вы {RED}выключили {DEFAULT}свой персональный ранг!"
+		"en"		"You {RED} turned off {DEFAULT} your personal rank!"
+	}
+
+	"No Available Rank"
+	{
+		"ru"		"У вас нету персонального ранга!"
+		"en"		"You do not have a personal rank!"
+	}
+	
+	"Enable Rank"
+	{
+		"ru"		"Вы {GREEN}включили {DEFAULT}свой персональный ранг!"
+		"en"		"You {GREEN} included {DEFAULT} your personal rank!"
+	}
+}
