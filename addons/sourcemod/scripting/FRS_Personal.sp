@@ -19,7 +19,7 @@ public Plugin myinfo =
 	version		= "1.2",
 	description	= "Personal fakeranks",
 	author		= "ღ λŌK0ЌЭŦ ღ ™",
-	url			= "https://hlmod.ru/resources/custom-fakerank.1271/"
+	url			= "https://github.com/IL0co"
 }
 
 public void OnPluginEnd()
