@@ -1,13 +1,13 @@
 
 // RU: "" или "0" - это нулевой, его видно не будет.
 // RU: Ранги выдаются при конекте игрока; при рестарте плагина или перезагрузке конфига.
-// RU: sm_reload_cfr - перезагрузить этот конфиг.
+// RU: sm_reload_perconal_cfg - перезагрузить этот конфиг.
 // RU: sm_cfr - вкл/выкл отображение персонального ранга (не сбрасывается при следущем подключении или перезагрузке конфига!)
 // RU: Приоритеты: сначала SteamIds, потом Ip, потом Names, потом Groups, потом all
 
 // EN: "" or "0" is zero, it will not be visible.
 // EN: Ranks are issued at the player’s end; when restarting the plugin or rebooting the config.
-// EN: sm_reload_cfr - reload this config.
+// EN: sm_reload_perconal_cfg - reload this config.
 // EN: sm_cfr - on / off display of the personal rank (it is not reset the next time you connect or restart the config!)
 // EN: Priorities: first SteamIds, then Ip, then Names, then Groups, then all
 
