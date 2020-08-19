@@ -1,72 +1,53 @@
 
-// RU: "" или "0" - это нулевой, его видно не будет.
-// RU: Ранги выдаются при конекте игрока; при рестарте плагина или перезагрузке конфига.
-// RU: sm_reload_perconal_cfg - перезагрузить этот конфиг.
-// RU: sm_cfr - вкл/выкл отображение персонального ранга (не сбрасывается при следущем подключении или перезагрузке конфига!)
-// RU: Приоритеты: сначала SteamIds, потом Ip, потом Names, потом Groups, потом all
-
-// EN: "" or "0" is zero, it will not be visible.
-// EN: Ranks are issued at the player’s end; when restarting the plugin or rebooting the config.
-// EN: sm_reload_perconal_cfg - reload this config.
-// EN: sm_cfr - on / off display of the personal rank (it is not reset the next time you connect or restart the config!)
-// EN: Priorities: first SteamIds, then Ip, then Names, then Groups, then all
+// "" или "0" - это нулевой, его видно не будет.
+// Ранги выдаются при конекте игрока; при рестарте плагина или перезагрузке конфига.
+// sm_reload_perconal_cfg - перезагрузить этот конфиг.
+// sm_cfr - вкл/выкл отображение персонального ранга (не сбрасывается при следущем подключении или перезагрузке конфига!)
+// Приоритеты: сначала SteamIds, потом Ip, потом Names, потом Groups, потом all
+// Игрок может иметь только один ранг!
 
 "Custom_FakeRanks"
 {
-
-
-								// RU: Всем игрокам, если они не пройшли фильтры что ниже
-	"all"	""					// EN: To all players, if they have not passed the filters below
-				
-								// RU: Установить по флагу
-	"Flags"						// EN: Set by flag
+	
+	"all"	// Всем игрокам, если они не пройшли фильтры что ниже
+	{	
+		// "id"		"120077775"		
+		// "align"		"1"						
+	}		
+							
+	"Flags"	// Установить по флагу
 	{
-								// RU: Приоритетные флаги всегда выше, так что выставляйте в порядке убывания от "z" до "a" 
-								// RU: Формат: "флаг(и)" 	"id таблички"
-								
-								// EN: The priority flags are always higher, so set in descending order from "z" to "a"
-								// EN: Format: "flag (s)" 	"plate id"
-		
-		"z"	"6"					
-		"a" "7"					
+	// Приоритетные флаги всегда выше, так что выставляйте в порядке убывания от "z" до "a" 
+	// Формат: "флаг(и)" 	"id таблички"
+		"a"	// Флаг
+		{
+			"id"		"120077775"		// Id таблички
+			"align"		"1"				// Позиция отображения. 0 - слева, 1 - справа
+		}			
 	}
-								// RU: Установить по группам
-	"Groups"					// EN: Set by groups
-	{
-								// RU: Приоритетные группы всегда выше (Заметка! У игрока могут быть несколько групп одновременно в Sourcemod!)
-								// RU: Формат: "группа" 	"id таблички"
-								
-								// EN: Priority groups are always higher (Note! A player can have several groups at the same time in Sourcemod!)
-								// EN: Format: "group" "label id"
+	"Groups"					// Установить по группам
+	{                              
+	// Приоритетные группы всегда выше (Заметка. У игрока могут быть несколько групп одновременно в Sourcemod!)
+	// Формат: "группа" 	"id таблички"
+								   
+		// "vip"	"5"            
+	}                              
+	"Names"						// Установить по никам 
+	{                              
+	// Формат: "имя игрока" 	"id таблички"
+								   
+		// "Imgs"	"10"           
+	}                              
+	"Ips"						// Установить по IP
+	{                              
+		// Формат: "ip" 	"id таблички"
+								   
+		// "178.94.201.20"	"6"    
+	}                              
+	"SteamIds"					// Установить по Steamid (в ксго всегда начинается со STEAM_1, а не со STEAM_0, его просто не будет читать конфиг!)
+	{                              
+								// Формат: "Steam_Id"	"id таблички"
 		
-		"vip"	"5"
-		"exe"	"1"
-	}
-								// RU: Установить по никам 
-	"Names"						// EN: Set by nickname
-	{
-								// RU: Формат: "имя игрока" 	"id таблички"
-								// RU: Format: "player name" 	"plate id"
-		
-		"Loco"	"5"
-		"Imgs"	"10"
-	}
-								// RU: Установить по IP
-	"Ips"						// EN: Set by IP
-	{
-								// RU: Формат: "ip" 	"id таблички"
-								// EN: Format: "ip" 	"plate id"
-		
-		"178.94.201.20"	"6"
-		"193.32.107.23"	"1"
-	}
-								// RU: Установить по Steamid (в ксго всегда начинается со STEAM_1, а не со STEAM_0, его просто не будет читать конфиг!)
-	"SteamIds"					// EN: Install on Steamid (in CSGO it always starts with STEAM_1, and not with STEAM_0, the config will simply not read it!)
-	{
-								// RU: Формат: "Steam_Id"	"id таблички"
-								// EN: Format: "Steam_Id" 	"plate id"
-		
-		"STEAM_1:0:545245222"	""
-		"STEAM_1:0:104481081"	"17"
+		// "STEAM_1:0:545245222"	""
 	}
 }

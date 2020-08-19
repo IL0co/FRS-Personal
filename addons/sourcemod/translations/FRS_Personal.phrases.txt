@@ -8,16 +8,26 @@
 		"ru"		"Вы {RED}выключили {DEFAULT}свой персональный ранг!"
 		"en"		"You {RED} turned off {DEFAULT} your personal rank!"
 	}
-
-	"No Available Rank"
-	{
-		"ru"		"У вас нету персонального ранга!"
-		"en"		"You do not have a personal rank!"
-	}
 	
 	"Enable Rank"
 	{
 		"ru"		"Вы {GREEN}включили {DEFAULT}свой персональный ранг!"
 		"en"		"You {GREEN} included {DEFAULT} your personal rank!"
+	}
+	
+	"Menu. Cookie"
+	{
+		"#format"		"{1:t}"		
+		"ru"		"[{1}] Персональный ранг"
+		"en"		"[{1}] Personal rank"
+	}
+	
+	"Menu. Plus"
+	{
+		"en"		"+"
+	}
+	"Menu. Minus"
+	{
+		"en"		"-"
 	}
 }

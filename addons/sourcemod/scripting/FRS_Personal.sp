@@ -2,23 +2,22 @@
 #pragma newdecls required
 
 #include <sdktools>
+#include <sourcemod>
 #include <csgo_colors>
 #include <clientprefs>
 #include <FakeRank_Sync>
 
 KeyValues kv;
-bool myBool[MAXPLAYERS+1];
-Handle g_hCookie_enable;
-int myIdBuff[MAXPLAYERS+1];
+Cookie gCookie;
 
 #define IND "personal"
 
 public Plugin myinfo = 
 {
 	name		= "[FRS] Personal",
-	version		= "1.2",
+	version		= "1.2.1",
 	description	= "Personal fakeranks",
-	author		= "ღ λŌK0ЌЭŦ ღ ™",
+	author		= "iLoco",
 	url			= "https://github.com/IL0co"
 }
 
@@ -33,9 +32,10 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_cfr", Cmd_Toggle, "On/Off draw Personal FakeRank");
 	LoadTranslations("FRS_Personal.phrases");
 
-	g_hCookie_enable = RegClientCookie("CustomFakeRank_Enable", "CustomFakeRank_Enable", CookieAccess_Private);
+	gCookie = new Cookie("CustomFakeRank_Enable", "CustomFakeRank_Enable", CookieAccess_Private);
+	SetCookieMenuItem(CookieHendler_Enable, 0, "CustomFakeRank_Enable");
 
-	ReadConfig();
+	LoadCfg();
 	FRS_OnCoreLoaded();
 
 	for(int i = 1; i <= MaxClients; i++) if(IsClientAuthorized(i) && IsClientInGame(i))
@@ -51,39 +51,74 @@ public void FRS_OnCoreLoaded()
 
 public void FRS_OnClientLoaded(int client)
 {
-	myBool[client] = false;	
-	myIdBuff[client] = ApplyRank(client);
-	CheckCookie(client);
-	FRS_SetClientRankId(client, myIdBuff[client], IND);
+	int id;
+	eSides align;
+	if(CheckClientCookie(client))
+	{
+		id = GetClientRank(client, align);
+		FRS_SetClientRankId(client, (id), IND, align);
+	}
 }
 
 public void OnMapStart()
 {
-	ReadConfig();
+	LoadCfg();
+}
+
+public void CookieHendler_Enable(int client, CookieMenuAction action, any info, char[] buffer, int maxlen)
+{
+	switch (action)
+	{
+		case CookieMenuAction_DisplayOption:
+		{
+			FormatEx(buffer, maxlen, "%T", "Menu. Cookie", client, (CheckClientCookie(client) ? "Menu. Plus" : "Menu. Minus"));
+		}
+		case CookieMenuAction_SelectOption:
+		{
+			if(CheckClientCookie(client))
+			{
+				FRS_SetClientRankId(client, 0, IND, Right);
+				gCookie.Set(client, "0");
+			}
+			else
+			{
+				eSides align;
+				int id = GetClientRank(client, align);
+				gCookie.Set(client, "1");
+				FRS_SetClientRankId(client, id, IND, align);
+			}
+
+			ShowCookieMenu(client);
+		}
+	}
 }
 
 public Action Cmd_Toggle(int client, int args)
 {
-	if(!client) return Plugin_Continue;
+	if(!client) 
+		return Plugin_Continue;
 
-	if(myBool[client])
+	if(CheckClientCookie(client))
 	{
-		char buff2[4];
-		GetClientCookie(client, g_hCookie_enable, buff2, sizeof(buff2));
-
-		bool off = !StringToInt(buff2);
-		SetClientCookie(client, g_hCookie_enable, off ? "1" : "0");
-		CGOPrintToChat(client, "%t", off ? "Enable Rank" : "Disable Rank");
-		CheckCookie(client);
+		CGOPrintToChat(client, "%t", "Disable Rank");
+		FRS_SetClientRankId(client, 0, IND, Right);
+		gCookie.Set(client, "0");
 	}
-	else CGOPrintToChat(client, "%t", "No Available Rank");
+	else
+	{
+		eSides align;
+		int id = GetClientRank(client, align);
+		CGOPrintToChat(client, "%t", "Enable Rank");
+		gCookie.Set(client, "1");
+		FRS_SetClientRankId(client, id, IND, align);
+	}
 
 	return Plugin_Handled;
 }
 
 public Action Command_Reload(int client, int args)
 {
-	ReadConfig();
+	LoadCfg();
 	
 	for (int i = 1; i <= MaxClients; i++)	if (IsClientInGame(i) && IsClientAuthorized(i))
 	{
@@ -95,7 +130,89 @@ public Action Command_Reload(int client, int args)
 	return Plugin_Handled;
 }
 
-stock void ReadConfig()
+stock int GetClientRank(int client, eSides &align)
+{
+	char buffer[64];
+	kv.Rewind();
+
+	GetClientAuthId(client, AuthId_Steam2, buffer, sizeof(buffer));
+	if(kv.JumpToKey("SteamIds") && kv.JumpToKey(buffer))
+	{
+		align = (kv.GetNum("align", 1) == 1 ? Right : Left);
+		return kv.GetNum("id", 0);
+	}
+	kv.Rewind();
+
+	GetClientIP(client, buffer, sizeof(buffer));
+	if(kv.JumpToKey("Ips") && kv.JumpToKey(buffer))
+	{
+		align = (kv.GetNum("align", 1) == 1 ? Right : Left);
+		return kv.GetNum("id", 0);
+	}
+	kv.Rewind();
+
+	GetClientName(client, buffer, sizeof(buffer));
+	if(kv.JumpToKey("Names") && kv.JumpToKey(buffer))
+	{
+		align = (kv.GetNum("align", 1) == 1 ? Right : Left);
+		return kv.GetNum("id", 0);
+	}
+	kv.Rewind();
+
+	if(kv.JumpToKey("Groups"))
+	{
+		AdminId id = GetUserAdmin(client);
+		if(id != INVALID_ADMIN_ID) for(int i, num = GetAdminGroupCount(id); i < num; i++)
+		{
+			if(GetAdminGroup(id, i, buffer, sizeof(buffer)) != INVALID_GROUP_ID && kv.JumpToKey(buffer))
+			{
+				align = (kv.GetNum("align", 1) == 1 ? Right : Left);
+				return kv.GetNum("id", 0);
+			}
+		}
+	}
+	kv.Rewind();
+
+	int flags = GetUserFlagBits(client);
+	if(kv.JumpToKey("Flags") && kv.GotoFirstSubKey())
+	{
+		do
+		{
+			kv.GetSectionName(buffer, sizeof(buffer));
+			if(flags & ReadFlagString(buffer))
+			{
+				align = (kv.GetNum("align", 1) == 1 ? Right : Left);
+				return kv.GetNum("id", 0);
+			}
+		}
+		while(kv.GotoNextKey());
+	}
+	kv.Rewind();
+
+	if(kv.JumpToKey("all"))
+	{
+		align = (kv.GetNum("align", 1) == 1 ? Right : Left);
+		return kv.GetNum("id", 0);
+	}
+
+	return 0;
+}
+
+stock bool CheckClientCookie(int client)
+{
+	if(IsFakeClient(client))
+		return false;
+
+	char buff[3];
+	gCookie.Get(client, buff, sizeof(buff));
+
+	if(buff[0] == '0') 
+		return false;
+
+	return true;
+}
+
+stock void LoadCfg()
 {
 	if(kv) delete kv;
 	kv = new KeyValues("Custom_FakeRanks");
@@ -126,84 +243,4 @@ stock void ReadConfig()
 		kv.Rewind();
 	}
 	
-}
-
-stock int ApplyRank(int client)
-{
-	int val;
-	char buffer[64];
-	kv.Rewind();
-
-	GetClientAuthId(client, AuthId_Steam2, buffer, sizeof(buffer));
-	if(kv.JumpToKey("SteamIds") && (val = kv.GetNum(buffer, 0)))
-	{
-		myBool[client] = true;
-		return val;
-	}
-	kv.Rewind();
-
-	GetClientIP(client, buffer, sizeof(buffer));
-	if(kv.JumpToKey("Ips") && (val = kv.GetNum(buffer, 0)))
-	{
-		myBool[client] = true;
-		return val;
-	}
-	kv.Rewind();
-
-	GetClientName(client, buffer, sizeof(buffer));
-	if(kv.JumpToKey("Names") && (val = kv.GetNum(buffer, 0)))
-	{
-		myBool[client] = true;
-		return val;
-	}
-	kv.Rewind();
-
-	if(kv.JumpToKey("Groups"))
-	{
-		AdminId id = GetUserAdmin(client);
-		if(id != INVALID_ADMIN_ID) for(int i, num = GetAdminGroupCount(id); i < num; i++)
-			if(GetAdminGroup(id, i, buffer, sizeof(buffer)) != INVALID_GROUP_ID && (val = kv.GetNum(buffer, 0)))
-			{
-				myBool[client] = true;
-				return val;
-			}
-	}
-	kv.Rewind();
-
-	int flags = GetUserFlagBits(client);
-	if(kv.JumpToKey("Flags") && kv.GotoFirstSubKey(false))
-	{
-		do
-		{
-			kv.GetSectionName(buffer, sizeof(buffer));
-			kv.GoBack();
-			if(flags & ReadFlagString(buffer))
-			{
-				myBool[client] = true;
-				return kv.GetNum(buffer, 0);
-			}
-			kv.JumpToKey(buffer, false);
-		}
-		while(kv.GotoNextKey(false));
-	}
-	kv.Rewind();
-
-	if((val = kv.GetNum("all", 0)))
-	{
-		myBool[client] = true;
-		return val;
-	}
-	return 0;
-}
-
-stock void CheckCookie(int client)
-{
-	if(IsFakeClient(client))
-		return;
-
-	char buff[3];
-	GetClientCookie(client, g_hCookie_enable, buff, sizeof(buff));
-
-	if(!StringToInt(buff))	FRS_SetClientRankId(client, 0, IND);
-	else	FRS_SetClientRankId(client, myIdBuff[client], IND);
 }
